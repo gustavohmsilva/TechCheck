@@ -6,13 +6,13 @@ import (
 
 // Tech is an istance of the tech application
 type Tech struct {
-	database *database.Database
+	Database *database.Database
 }
 
 // NewTech instanciate a new Tech object
 func NewTech(db *database.Database) (*Tech, error) {
 	var T Tech
 	var err error
-	T.database = db
+	T.Database = db
 	return &T, err
 }
