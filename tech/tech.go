@@ -1,18 +1,15 @@
+// Package tech seria o dominio da app, as partes logicas do que a app vai fazer
+// ela nao entende sobre sql, ou http, mas pode entender de permissoes e validaçoes
 package tech
 
-import (
-	"github.com/gustavohmsilva/TechCheck/database"
-)
-
-// Tech is an istance of the tech application
-type Tech struct {
-	Database *database.Database
+type QueryOptions struct {
+	Find   string
+	Amount int
+	Offset int
 }
 
-// NewTech instanciate a new Tech object
-func NewTech(db *database.Database) (*Tech, error) {
-	var T Tech
-	var err error
-	T.Database = db
-	return &T, err
+func (q *QueryOptions) Validate() error {
+	// coisas para verificar os valores e retornar erro
+
+	return nil
 }

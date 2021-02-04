@@ -1,4 +1,4 @@
-package model
+package tech
 
 // User is a single user
 type User struct {
