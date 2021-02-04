@@ -1,4 +1,4 @@
-package model
+package tech
 
 // Book  is a single book
 type Book struct {

@@ -1,4 +1,4 @@
-package model
+package tech
 
 import "time"
 

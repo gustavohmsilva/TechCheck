@@ -1,4 +1,4 @@
-package model
+package tech
 
 // UserType Represent a Type of User, being for the present moment "Reviewer" or
 // "Author"
