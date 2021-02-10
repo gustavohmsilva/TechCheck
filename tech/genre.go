@@ -1,27 +1,25 @@
 package tech
 
-import "context"
+import (
+	"context"
 
-// Genre describes a genre or category of book
-type Genre struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
+	"github.com/gustavohmsilva/TechCheck/model"
+)
 
 type genreRepository interface {
-	Create(ctx context.Context, g *Genre) (*Genre, error)
-	Find(ctx context.Context, q QueryOptions) ([]*Genre, error)
+	Create(ctx context.Context, g *model.Genre) (*model.Genre, error)
+	Find(ctx context.Context) ([]*model.Genre, error)
 }
 
-type GenreService struct {
+type Genre struct {
 	repo genreRepository
 }
 
-func NewGenreService(r genreRepository) *GenreService {
-	return &GenreService{r}
+func NewGenre(r genreRepository) *Genre {
+	return &Genre{r}
 }
 
-func (s *GenreService) Create(ctx context.Context, g *Genre) (*Genre, error) {
+func (s *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error) {
 	// validaçao, cache, etc
 
 	g, err := s.repo.Create(ctx, g)
@@ -31,8 +29,8 @@ func (s *GenreService) Create(ctx context.Context, g *Genre) (*Genre, error) {
 	return g, err
 }
 
-func (s *GenreService) Find(ctx context.Context, q QueryOptions) ([]*Genre, error) {
-	g, err := s.repo.Find(ctx, q)
+func (s *Genre) Find(ctx context.Context) ([]*model.Genre, error) {
+	g, err := s.repo.Find(ctx)
 
 	return g, err
 }

@@ -1,13 +1,36 @@
 package tech
 
-// Book  is a single book
+import (
+	"context"
+
+	"github.com/gustavohmsilva/TechCheck/model"
+)
+
+type BookRepository interface {
+	Create(ctx context.Context, g *model.Book) (*model.Book, error)
+	Find(ctx context.Context) ([]*model.Book, error)
+}
+
 type Book struct {
-	ID                 int    `json:"id" db:"id"`
-	Author             *User  `json:"author" db:"Author"`
-	ISBN               string `json:"isbn" db:"ISBN"`
-	Name               string `json:"name" db:"Name"`
-	Edition            int    `json:"edition" db:"Edition"`
-	LatestEdition      bool   `json:"latest_edition" db:"LatestEdition"`
-	PredecessorEdition *Book  `json:"predecessor_edition" db:"PredecessorEdition"`
-	Image              string `json:"image" db:"Image"`
+	repo BookRepository
+}
+
+func NewBook(r BookRepository) *Book {
+	return &Book{r}
+}
+
+func (b *Book) Create(ctx context.Context, g *model.Book) (*model.Book, error) {
+	// validaçao, cache, etc
+
+	g, err := b.repo.Create(ctx, g)
+
+	// Alguma outra coisa
+
+	return g, err
+}
+
+func (b *Book) Find(ctx context.Context) ([]*model.Book, error) {
+	g, err := b.repo.Find(ctx)
+
+	return g, err
 }
