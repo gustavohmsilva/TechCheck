@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+  dbserver:
+    container_name: maria
+    image: mariadb:latest
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: techcheck
+      MYSQL_DATABASE: techcheck
+      MYSQL_USER: techcheck
+      MYSQL_PASSWORD: techcheck
+    volumes:
+      - ./deploy/:/docker-entrypoint-initdb.d/
+  techcheck:
+    container_name: techcheck
+    image: golang:latest
+    restart: unless-stopped
+    working_dir: /go/src/github.com/gustavohmsilva/TechCheck
+    command: go run ./cmd/techcheck/main.go
+    depends_on:
+      - "dbserver"
+    ports:
+      - 8080:8080
+    environment:
+      - "DB_HOST=dbserver"
+      - "DB_USER=techcheck"
+      - "DB_PASSWORD=techcheck"
+      - "DB_DATABASE=techcheck"
+      - "DB_PORT=3306"
+    volumes:
+      - /home/john/go/src/github.com/gustavohmsilva/TechCheck:/go/src/github.com/gustavohmsilva/TechCheck
+

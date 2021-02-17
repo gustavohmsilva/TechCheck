@@ -12,7 +12,10 @@ func main() {
 
 	// Does the connection to the database, it will panic if impossible to
 	// connect.
-	database := maria.NewDB()
+	database, err := maria.NewDB()
+	if err != nil {
+		panic(err)
+	}
 
 	// Creates the repositories. They contains the functions that work
 	// directly to the databases.

@@ -6,18 +6,29 @@ import (
 	"fmt"
 	"log"
 
+	// Database driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // NewDB returns a testes connection to the database
-func NewDB() *sql.DB {
-	db, err := sql.Open("mysql", "root:root@/techcheck")
+func NewDB() (*sql.DB, error) {
+	connLine := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s",
+		dbUser,
+		dbPassword,
+		dbHost,
+		dbPort,
+		dbDatabase,
+	)
+	db, err := sql.Open("mysql", connLine)
 	if err != nil {
-		log.Fatal("Connection to MariaDB database failed!")
+		log.Println("Connection to MariaDB database failed!")
+		return nil, err
 	}
 	err = db.Ping()
 	if err != nil {
-		fmt.Println("Connection to MariaDB database failed!")
+		log.Println("Connection to MariaDB database failed!")
+		return nil, err
 	}
-	return db
+	return db, nil
 }
