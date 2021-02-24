@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gustavohmsilva/TechCheck/model"
@@ -22,28 +22,57 @@ func NewGenre(db *sql.DB) *Genre {
 // Create  ...
 func (r *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error) {
 	// Cria squirrel, etc parar storage
-	qry, args, err := squirrel.Insert("genre").ToSql()
+	qry, args, err := squirrel.Insert(
+		"Genre",
+	).Columns(
+		"Name",
+	).Values(
+		g.Name,
+	).ToSql()
+
+	if err != nil {
+
+		return nil, err
+	}
+	id, err := r.DB.ExecContext(ctx, qry, args...)
 	if err != nil {
 		return nil, err
 	}
-	// Insert
-	_, err = r.DB.ExecContext(ctx, qry, args...)
-
-	return g, err
+	g.ID, err = id.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return g, nil
 }
 
 // Find ...
-func (r *Genre) Find(ctx context.Context) ([]*model.Genre, error) {
-	// etc etc, limit, query, etc
-	qry, args, err := squirrel.Select("genre").ToSql()
+func (r *Genre) Find(ctx context.Context, ga *model.GenreArgs) ([]*model.Genre, error) {
+	sel := squirrel.Select("*").From("Genre")
+	switch {
+	case ga.Request.Like != "":
+		sel = sel.Where(squirrel.Like{"Name": ga.Request.Like})
+	case ga.Request.Offset != 0:
+		sel = sel.Offset(ga.Request.Offset)
+	case ga.Request.Size != 0:
+		sel = sel.Limit(ga.Request.Size)
+	}
+	qry, args, err := sel.ToSql()
 	if err != nil {
 		return nil, err
 	}
-	_, err = r.DB.QueryContext(ctx, qry, args...)
-
+	fmt.Println(qry)
+	res, err := r.DB.QueryContext(ctx, qry, args...)
 	if err != nil {
 		return nil, err
 	}
-
-	return []*model.Genre{}, errors.New("not implemented")
+	gs := make([]*model.Genre, 0)
+	for res.Next() {
+		var g model.Genre
+		err := res.Scan(&g.ID, &g.Name)
+		if err != nil {
+			continue
+		}
+		gs = append(gs, &g)
+	}
+	return gs, nil
 }
