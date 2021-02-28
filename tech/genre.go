@@ -20,7 +20,13 @@ func NewGenre(r genreRepository) *Genre {
 	return &Genre{r}
 }
 
-func (s *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error) {
+func (s *Genre) Create(
+	ctx context.Context,
+	g *model.Genre,
+) (
+	*model.Genre,
+	error,
+) {
 	// validaçao, cache, etc
 
 	storedGenre, err := s.repo.Create(ctx, g)
@@ -32,7 +38,13 @@ func (s *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error
 	return storedGenre, nil
 }
 
-func (s *Genre) Find(ctx context.Context, ga *model.GenreArgs) ([]*model.Genre, error) {
+func (s *Genre) Find(
+	ctx context.Context,
+	ga *model.GenreArgs,
+) (
+	[]*model.Genre,
+	error,
+) {
 	gs, err := s.repo.Find(ctx, ga)
 	if err != nil {
 		fmt.Println(err.Error())

@@ -20,7 +20,13 @@ func NewGenre(db *sql.DB) *Genre {
 }
 
 // Create  ...
-func (r *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error) {
+func (r *Genre) Create(
+	ctx context.Context,
+	g *model.Genre,
+) (
+	*model.Genre,
+	error,
+) {
 	// Cria squirrel, etc parar storage
 	qry, args, err := squirrel.Insert(
 		"Genre",
@@ -46,7 +52,13 @@ func (r *Genre) Create(ctx context.Context, g *model.Genre) (*model.Genre, error
 }
 
 // Find ...
-func (r *Genre) Find(ctx context.Context, ga *model.GenreArgs) ([]*model.Genre, error) {
+func (r *Genre) Find(
+	ctx context.Context,
+	ga *model.GenreArgs,
+) (
+	[]*model.Genre,
+	error,
+) {
 	sel := squirrel.Select("*").From("Genre")
 	if ga.Request.Like != "" {
 		sel = sel.Where(
