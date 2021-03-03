@@ -21,16 +21,19 @@ func main() {
 	// directly to the databases.
 	genreRepository := repo.NewGenre(database)
 	bookRepository := repo.NewBook(database)
+	userTypeRepository := repo.NewUserType(database)
 
 	// Creates the "services" (which the package receive the name of the
 	// app itself). It does validation and business logic between the
 	// request and the response.
 	genreService := tech.NewGenre(genreRepository)
 	bookService := tech.NewBook(bookRepository)
+	userTypeService := tech.NewUserType(userTypeRepository)
 
 	a := &api.API{
-		Genres: genreService,
-		Books:  bookService,
+		Genres:    genreService,
+		Books:     bookService,
+		UserTypes: userTypeService,
 		// Users...
 	}
 

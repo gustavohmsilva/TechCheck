@@ -6,3 +6,15 @@ type UserType struct {
 	ID   int    `json:"id" db:"id"`
 	Name string `json:"name" db:"Name"`
 }
+
+type UserTypeRequest struct {
+	ID     uint64 `json:"id"`
+	Like   string `json:"like"`
+	Size   uint64 `json:"size"`
+	Offset uint64 `json:"offset"`
+}
+
+type UserTypeArgs struct {
+	UserType
+	Request UserTypeRequest
+}

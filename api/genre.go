@@ -6,6 +6,7 @@ import (
 	"github.com/gustavohmsilva/TechCheck/model"
 	"github.com/gustavohmsilva/TechCheck/rendering"
 	"github.com/gustavohmsilva/TechCheck/tech"
+	"github.com/gustavohmsilva/TechCheck/util/parser"
 	"github.com/labstack/echo/v4"
 )
 
@@ -46,13 +47,6 @@ func (g *Genre) create(ech echo.Context) error {
 		return err
 	}
 
-	if req.Name == "" {
-		return ech.JSON(
-			http.StatusBadRequest,
-			"No genre provided",
-		)
-	}
-
 	createdGenre, err := g.genreService.Create(ctx, req)
 	if err != nil {
 		return ech.JSON(
@@ -70,11 +64,26 @@ func (g *Genre) create(ech echo.Context) error {
 // TODO: Remember to implement a limit
 func (g *Genre) find(ech echo.Context) error {
 	ctx := ech.Request().Context()
+
 	req := new(model.GenreArgs)
-	err := ech.Bind(&req)
-	if err != nil {
-		return err
+	var err error
+
+	// Parse "like"
+	req.Request.Like = ech.QueryParam("like")
+
+	// Parse and validate "Size"
+	var re rendering.ResponseError
+	req.Request.Size, re = parser.Uint64(ech.QueryParam("size"))
+	if (re != rendering.ResponseError{}) {
+		return ech.JSON(http.StatusBadRequest, re)
 	}
+
+	// Parse and validate "Offset"
+	req.Request.Offset, re = parser.Uint64(ech.QueryParam("offset"))
+	if (re != rendering.ResponseError{}) {
+		return ech.JSON(http.StatusBadRequest, re)
+	}
+
 	genres, err := g.genreService.Find(ctx, req)
 	if err != nil {
 		return err

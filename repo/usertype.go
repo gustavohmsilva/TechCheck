@@ -3,64 +3,26 @@ package repo
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"reflect"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/gustavohmsilva/TechCheck/model"
 )
 
-// Genre vai persistir os genres
-type Genre struct {
+// UserType vai persistir os genres
+type UserType struct {
 	DB *sql.DB
 }
 
-// NewGenre ...
-func NewGenre(db *sql.DB) *Genre {
-	return &Genre{db}
+// NewUserType ...
+func NewUserType(db *sql.DB) *UserType {
+	return &UserType{db}
 }
 
-// Create  ...
-func (r *Genre) Create(
-	ctx context.Context,
-	g *model.Genre,
+func (ut *UserType) Find(
+	ctx context.Context, args *model.UserTypeArgs,
 ) (
-	*model.Genre,
-	error,
+	[]*model.UserType, error,
 ) {
-	// Cria squirrel, etc parar storage
-	qry, args, err := squirrel.Insert(
-		"Genre",
-	).Columns(
-		"Name",
-	).Values(
-		g.Name,
-	).ToSql()
-
-	if err != nil {
-
-		return nil, err
-	}
-	id, err := r.DB.ExecContext(ctx, qry, args...)
-	if err != nil {
-		return nil, err
-	}
-	g.ID, err = id.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	return g, nil
-}
-
-// Find ...
-func (r *Genre) Find(
-	ctx context.Context,
-	ga *model.GenreArgs,
-) (
-	[]*model.Genre,
-	error,
-) {
-	t := reflect.TypeOf(ga.Genre)
+	/*t := reflect.TypeOf(ga.ID)
 	f := t.Field(1) // Name
 	sel := squirrel.Select(all).From(genre)
 	if ga.Request.Like != "" {
@@ -93,6 +55,6 @@ func (r *Genre) Find(
 			continue
 		}
 		gs = append(gs, &g)
-	}
-	return gs, nil
+	}*/
+	return nil, nil
 }

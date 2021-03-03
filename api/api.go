@@ -11,8 +11,9 @@ import (
 )
 
 type API struct {
-	Genres *tech.Genre
-	Books  *tech.Book
+	Genres    *tech.Genre
+	Books     *tech.Book
+	UserTypes *tech.UserType
 }
 
 func (a *API) Routes(e *echo.Echo) error {
@@ -20,6 +21,8 @@ func (a *API) Routes(e *echo.Echo) error {
 	g.Routes(e.Group("/api/v1/genre"))
 	b := &Book{bookService: a.Books}
 	b.Routes(e.Group("/api/v1/book"))
+	ut := &UserType{usertTypeService: a.UserTypes}
+	ut.Routes(e.Group("/api/v1/usertype"))
 
 	return nil
 }
