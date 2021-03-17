@@ -21,7 +21,7 @@ func (a *API) Routes(e *echo.Echo) error {
 	g.Routes(e.Group("/api/v1/genre"))
 	b := &Book{bookService: a.Books}
 	b.Routes(e.Group("/api/v1/book"))
-	ut := &UserType{usertTypeService: a.UserTypes}
+	ut := &UserType{userTypeService: a.UserTypes}
 	ut.Routes(e.Group("/api/v1/usertype"))
 
 	return nil

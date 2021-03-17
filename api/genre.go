@@ -36,18 +36,24 @@ type genreCreateResponse struct {
 	*tech.Genre
 }
 
-// createGenre retrieves the JSON sent by the user with a new genre and send it
-// to be stored in the database.
+// create - Insert in the database a valid new genre
+// Success: 200 []model.Genre
+// Fail: 400 rendering.ResponseError
 func (g *Genre) create(ech echo.Context) error {
 	ctx := ech.Request().Context()
 	// poderia ser o tech.Genre
-	req := new(model.Genre)
-	err := ech.Bind(&req)
+	req := new(model.GenreArgs)
+	err := ech.Bind(&req.Genre)
 	if err != nil {
-		return err
+		return ech.JSON(
+			http.StatusBadRequest,
+			&rendering.ResponseError{
+				Err: err.Error(),
+			},
+		)
 	}
 
-	createdGenre, err := g.genreService.Create(ctx, req)
+	req.Genre, err = g.genreService.Create(ctx, req)
 	if err != nil {
 		return ech.JSON(
 			http.StatusConflict,
@@ -56,37 +62,35 @@ func (g *Genre) create(ech echo.Context) error {
 			},
 		)
 	}
-	return ech.JSON(http.StatusOK, createdGenre)
+	return ech.JSON(http.StatusOK, req.Genre)
 }
 
-// find will retrieve one or more genres from the database depending
-// on the parameter used for search.
-// TODO: Remember to implement a limit
+// find - Search for one or more genres
+// Success: 200 []model.GenreArgs
+// Fail: 400 rendering.ResponseError
+// Exception: 500 empty
 func (g *Genre) find(ech echo.Context) error {
 	ctx := ech.Request().Context()
 
-	req := new(model.GenreArgs)
-	var err error
+	req := new(model.GenresArgs)
 
-	// Parse "like"
-	req.Request.Like = ech.QueryParam("like")
+	req.Includes.Like = ech.QueryParam("like")
 
-	// Parse and validate "Size"
 	var re rendering.ResponseError
-	req.Request.Size, re = parser.Uint64(ech.QueryParam("size"))
+	req.Includes.Size, re = parser.Uint64(ech.QueryParam("size"))
 	if (re != rendering.ResponseError{}) {
 		return ech.JSON(http.StatusBadRequest, re)
 	}
 
-	// Parse and validate "Offset"
-	req.Request.Offset, re = parser.Uint64(ech.QueryParam("offset"))
+	req.Includes.Offset, re = parser.Uint64(ech.QueryParam("offset"))
 	if (re != rendering.ResponseError{}) {
 		return ech.JSON(http.StatusBadRequest, re)
 	}
 
-	genres, err := g.genreService.Find(ctx, req)
+	var err error
+	req.Genres, err = g.genreService.Find(ctx, req)
 	if err != nil {
-		return err
+		return ech.NoContent(http.StatusInternalServerError)
 	}
-	return ech.JSON(http.StatusOK, genres)
+	return ech.JSON(http.StatusOK, req)
 }

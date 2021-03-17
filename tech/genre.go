@@ -9,8 +9,8 @@ import (
 )
 
 type genreRepository interface {
-	Create(ctx context.Context, g *model.Genre) (*model.Genre, error)
-	Find(ctx context.Context, ga *model.GenreArgs) ([]*model.Genre, error)
+	Create(ctx context.Context, g *model.GenreArgs) (*model.Genre, error)
+	Find(ctx context.Context, ga *model.GenresArgs) ([]*model.Genre, error)
 }
 
 type Genre struct {
@@ -24,14 +24,14 @@ func NewGenre(r genreRepository) *Genre {
 // Create validate the terms received by the controller and if they are usable,
 // try to create such genre in the database.
 func (s *Genre) Create(
-	ctx context.Context, g *model.Genre,
+	ctx context.Context, g *model.GenreArgs,
 ) (
 	*model.Genre, error,
 ) {
-	if g.ID != 0 {
-		g.ID = 0
+	if g.Genre.ID != 0 {
+		g.Genre.ID = 0
 	}
-	if g.Name == "" {
+	if g.Genre.Name == "" {
 		return nil, errors.New("No genre provided")
 	}
 	storedGenre, err := s.repo.Create(ctx, g)
@@ -44,15 +44,15 @@ func (s *Genre) Create(
 // Find validate the terms received by the controller and if they are usable,
 // performs a database search for a set of genres.
 func (s *Genre) Find(
-	ctx context.Context, ga *model.GenreArgs,
+	ctx context.Context, ga *model.GenresArgs,
 ) (
 	[]*model.Genre, error,
 ) {
-	if len(ga.Request.Like) > 128 {
+	if len(ga.Includes.Like) > 128 {
 		return nil, errors.New("Search string too big")
 	}
-	if ga.Request.Size > 50 {
-		ga.Request.Size = 50
+	if ga.Includes.Size > 50 {
+		ga.Includes.Size = 50
 	}
 	gs, err := s.repo.Find(ctx, ga)
 	if err != nil {

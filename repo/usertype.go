@@ -18,7 +18,7 @@ func NewUserType(db *sql.DB) *UserType {
 }
 
 func (ut *UserType) Find(
-	ctx context.Context, args *model.UserTypeArgs,
+	ctx context.Context, utsa *model.UserTypesArgs,
 ) (
 	[]*model.UserType, error,
 ) {

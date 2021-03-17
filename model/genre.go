@@ -13,6 +13,11 @@ type GenreRequest struct {
 }
 
 type GenreArgs struct {
-	Genre
-	Request GenreRequest
+	Genre    *Genre       `json:"genre"`
+	Includes GenreRequest `json:"includes"`
+}
+
+type GenresArgs struct {
+	Genres   []*Genre     `json:"genres"`
+	Includes GenreRequest `json:"includes"`
 }
