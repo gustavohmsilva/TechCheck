@@ -7,7 +7,7 @@ import (
 )
 
 type BookRepository interface {
-	Create(ctx context.Context, g *model.Book) (*model.Book, error)
+	Create(ctx context.Context, b *model.Book) (*model.Book, error)
 	Find(ctx context.Context) ([]*model.Book, error)
 }
 
