@@ -15,6 +15,11 @@ type UserTypeRequest struct {
 }
 
 type UserTypeArgs struct {
-	UserType
-	Request UserTypeRequest
+	UserType *UserType       `json:"user_type"`
+	Includes UserTypeRequest `json:"includes"`
+}
+
+type UserTypesArgs struct {
+	UserTypes []*UserType     `json:"user_types"`
+	Includes  UserTypeRequest `json:"includes"`
 }
