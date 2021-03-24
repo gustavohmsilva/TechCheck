@@ -17,8 +17,5 @@ func Uint64(s string) (uint64, rendering.ResponseError) {
 		return 0, rendering.ResponseError{Err: err.Error()}
 
 	}
-	if x > 50 {
-		x = 50
-	}
 	return x, rendering.ResponseError{}
 }

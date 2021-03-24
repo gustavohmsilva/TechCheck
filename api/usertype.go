@@ -70,6 +70,11 @@ func (ut *UserType) find(ech echo.Context) error {
 	req.Includes.Like = ech.QueryParam("like")
 
 	var re rendering.ResponseError
+	req.Includes.ID, re = parser.Uint64(ech.QueryParam("id"))
+	if (re != rendering.ResponseError{}) {
+		return ech.JSON(http.StatusBadRequest, re)
+	}
+
 	req.Includes.Size, re = parser.Uint64(ech.QueryParam("size"))
 	if (re != rendering.ResponseError{}) {
 		return ech.JSON(http.StatusBadRequest, re)

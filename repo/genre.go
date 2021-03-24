@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/gustavohmsilva/TechCheck/model"
+	l "github.com/sirupsen/logrus"
 )
 
 // Genre vai persistir os genres
@@ -58,28 +59,41 @@ func (r *Genre) Find(
 	error,
 ) {
 	sel := squirrel.Select(all).From(genre)
-	if ga.Includes.Like != "" {
-		sel = sel.Where(
-			squirrel.Like{
-				"name": fmt.Sprint(wc, ga.Includes.Like, wc),
-			},
-		)
-	}
-	if ga.Includes.Offset != 0 {
-		sel = sel.Offset(ga.Includes.Offset)
-	}
-	if ga.Includes.Size != 0 {
+	if ga.Includes.ID != 0 {
+		sel = sel.Where(squirrel.Eq{"Id": ga.Includes.ID})
+	} else {
+		if ga.Includes.Like != "" {
+			sel = sel.Where(
+				squirrel.Like{
+					"name": fmt.Sprint(
+						wc,
+						ga.Includes.Like,
+						wc,
+					),
+				},
+			)
+		}
+
+		if ga.Includes.Offset != 0 {
+			sel = sel.Offset(ga.Includes.Offset)
+		}
+
 		sel = sel.Limit(ga.Includes.Size)
 	}
+
 	qry, args, err := sel.ToSql()
 	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
 		return nil, err
 	}
-	fmt.Println(qry)
+
+	l.Infof("QUERY: %s", qry)
 	res, err := r.DB.QueryContext(ctx, qry, args...)
 	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
 		return nil, err
 	}
+
 	gs := make([]*model.Genre, 0)
 	for res.Next() {
 		var g model.Genre

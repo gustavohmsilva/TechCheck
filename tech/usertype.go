@@ -36,9 +36,11 @@ func (ut *UserType) Create(
 	if uta.UserType.ID != 0 {
 		uta.UserType.ID = 0
 	}
+
 	if uta.UserType.Name == "" {
 		return nil, errors.New("No user type name provided")
 	}
+	// TODO: MAYBE IMPLEMENT UT.REPO.COUNT????
 	storedUserType, err := ut.repo.Create(ctx, uta)
 	if err != nil {
 		return nil, err
@@ -51,6 +53,13 @@ func (ut *UserType) Find(
 ) (
 	[]*model.UserType, error,
 ) {
-	var ret []*model.UserType
-	return ret, nil
+	if utsa.Includes.Size > 50 || utsa.Includes.Size < 1 {
+		utsa.Includes.Size = 50
+	}
+
+	foundUserTypes, err := ut.repo.Find(ctx, utsa)
+	if err != nil {
+		return nil, err
+	}
+	return foundUserTypes, nil
 }

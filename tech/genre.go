@@ -51,7 +51,7 @@ func (s *Genre) Find(
 	if len(ga.Includes.Like) > 128 {
 		return nil, errors.New("Search string too big")
 	}
-	if ga.Includes.Size > 50 {
+	if ga.Includes.Size > 50 || ga.Includes.Size < 1 {
 		ga.Includes.Size = 50
 	}
 	gs, err := s.repo.Find(ctx, ga)

@@ -7,9 +7,11 @@ type Genre struct {
 }
 
 type GenreRequest struct {
+	ID     uint64 `json:"id"`
 	Like   string `json:"like"`
 	Size   uint64 `json:"size"`
 	Offset uint64 `json:"offset"`
+	Count  uint64 `json:"count"` // TODO: REMEMBER TO IMPLEMENT A SIMPLE COUNT TO AID IN THE PAGINATION
 }
 
 type GenreArgs struct {

@@ -3,8 +3,11 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/gustavohmsilva/TechCheck/model"
+	l "github.com/sirupsen/logrus"
 )
 
 // UserType vai persistir os genres
@@ -17,44 +20,80 @@ func NewUserType(db *sql.DB) *UserType {
 	return &UserType{db}
 }
 
+func (ut *UserType) Create(
+	ctx context.Context, uta *model.UserTypeArgs,
+) (
+	*model.UserType, error,
+) {
+	qry, args, err := squirrel.Insert(
+		"UserType",
+	).Columns(
+		"Name",
+	).Values(
+		uta.UserType.Name,
+	).ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+	id, err := ut.DB.ExecContext(ctx, qry, args...)
+	if err != nil {
+		return nil, err
+	}
+	uta.UserType.ID, err = id.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	return uta.UserType, nil
+}
+
 func (ut *UserType) Find(
 	ctx context.Context, utsa *model.UserTypesArgs,
 ) (
 	[]*model.UserType, error,
 ) {
-	/*t := reflect.TypeOf(ga.ID)
-	f := t.Field(1) // Name
-	sel := squirrel.Select(all).From(genre)
-	if ga.Request.Like != "" {
-		sel = sel.Where(
-			squirrel.Like{
-				f.Name: fmt.Sprint(wc, ga.Request.Like, wc),
-			},
-		)
+	sel := squirrel.Select(all).From("UserType")
+	if utsa.Includes.ID != 0 {
+		sel = sel.Where(squirrel.Eq{"Id": utsa.Includes.ID})
+	} else {
+		if utsa.Includes.Like != "" {
+			sel = sel.Where(
+				squirrel.Like{
+					"Name": fmt.Sprint(
+						wc,
+						utsa.Includes.Like,
+						wc,
+					),
+				},
+			)
+		}
+		if utsa.Includes.Offset != 0 {
+			sel = sel.Offset(utsa.Includes.Offset)
+
+		}
+		sel = sel.Limit(utsa.Includes.Size)
 	}
-	if ga.Request.Offset != 0 {
-		sel = sel.Offset(ga.Request.Offset)
-	}
-	if ga.Request.Size != 0 {
-		sel = sel.Limit(ga.Request.Size)
-	}
+
 	qry, args, err := sel.ToSql()
 	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
 		return nil, err
 	}
-	fmt.Println(qry)
-	res, err := r.DB.QueryContext(ctx, qry, args...)
+
+	l.Infof("QUERY: %s", qry)
+	res, err := ut.DB.QueryContext(ctx, qry, args...)
 	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
 		return nil, err
 	}
-	gs := make([]*model.Genre, 0)
+	retUserType := make([]*model.UserType, 0)
 	for res.Next() {
-		var g model.Genre
-		err := res.Scan(&g.ID, &g.Name)
+		var newUserType model.UserType
+		err := res.Scan(&newUserType.ID, &newUserType.Name)
 		if err != nil {
 			continue
 		}
-		gs = append(gs, &g)
-	}*/
-	return nil, nil
+		retUserType = append(retUserType, &newUserType)
+	}
+	return retUserType, nil
 }

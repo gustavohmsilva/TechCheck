@@ -3,7 +3,7 @@ package model
 // UserType Represent a Type of User, being for the present moment "Reviewer" or
 // "Author"
 type UserType struct {
-	ID   int    `json:"id" db:"id"`
+	ID   int64  `json:"id" db:"id"`
 	Name string `json:"name" db:"Name"`
 }
 
@@ -12,6 +12,7 @@ type UserTypeRequest struct {
 	Like   string `json:"like"`
 	Size   uint64 `json:"size"`
 	Offset uint64 `json:"offset"`
+	Count  uint64 `json:"count"` // TODO: REMEMBER TO IMPLEMENT A SIMPLE COUNT TO AID IN THE PAGINATION
 }
 
 type UserTypeArgs struct {
