@@ -105,3 +105,39 @@ func (r *Genre) Find(
 	}
 	return gs, nil
 }
+
+func (r *Genre) Count(
+	ctx context.Context, utca *model.GenresArgs,
+) (
+	uint64, error,
+) {
+	ct := squirrel.Select(
+		"count(Id)",
+	).From(
+		"Genre",
+	).Where(
+		squirrel.Like{
+			"Name": fmt.Sprint(
+				wc,
+				utca.Includes.Like,
+				wc,
+			),
+		},
+	)
+
+	qry, args, err := ct.ToSql()
+	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
+		return 0, err
+	}
+
+	l.Infof("QUERY: %s", qry)
+	res := r.DB.QueryRowContext(ctx, qry, args...)
+	var count uint64
+	err = res.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

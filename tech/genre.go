@@ -11,6 +11,7 @@ import (
 type genreRepository interface {
 	Create(ctx context.Context, g *model.GenreArgs) (*model.Genre, error)
 	Find(ctx context.Context, ga *model.GenresArgs) ([]*model.Genre, error)
+	Count(ctx context.Context, utca *model.GenresArgs) (uint64, error)
 }
 
 type Genre struct {
@@ -32,7 +33,7 @@ func (s *Genre) Create(
 		g.Genre.ID = 0
 	}
 	if g.Genre.Name == "" {
-		return nil, errors.New("No genre provided")
+		return nil, errors.New("no genre provided")
 	}
 	storedGenre, err := s.repo.Create(ctx, g)
 	if err != nil {
@@ -49,7 +50,7 @@ func (s *Genre) Find(
 	[]*model.Genre, error,
 ) {
 	if len(ga.Includes.Like) > 128 {
-		return nil, errors.New("Search string too big")
+		return nil, errors.New("search string too big")
 	}
 	if ga.Includes.Size > 50 || ga.Includes.Size < 1 {
 		ga.Includes.Size = 50
@@ -60,4 +61,18 @@ func (s *Genre) Find(
 		return nil, err
 	}
 	return gs, nil
+}
+
+func (s *Genre) Count(
+	ctx context.Context, gca *model.GenresArgs,
+) (
+	uint64, error,
+) {
+	if len(gca.Includes.Like) < 3 {
+		return 0, errors.New(
+			"count require at least three characters in field LIKE",
+		)
+	}
+
+	return s.repo.Count(ctx, gca)
 }

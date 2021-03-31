@@ -18,6 +18,7 @@ type UserTypeRepository interface {
 	) (
 		[]*model.UserType, error,
 	)
+	Count(ctx context.Context, utca *model.UserTypesArgs) (uint64, error)
 }
 
 type UserType struct {
@@ -38,13 +39,14 @@ func (ut *UserType) Create(
 	}
 
 	if uta.UserType.Name == "" {
-		return nil, errors.New("No user type name provided")
+		return nil, errors.New("no user type name provided")
 	}
-	// TODO: MAYBE IMPLEMENT UT.REPO.COUNT????
+
 	storedUserType, err := ut.repo.Create(ctx, uta)
 	if err != nil {
 		return nil, err
 	}
+
 	return storedUserType, nil
 }
 
@@ -61,5 +63,20 @@ func (ut *UserType) Find(
 	if err != nil {
 		return nil, err
 	}
+
 	return foundUserTypes, nil
+}
+
+func (ut *UserType) Count(
+	ctx context.Context, utca *model.UserTypesArgs,
+) (
+	uint64, error,
+) {
+	if len(utca.Includes.Like) < 3 {
+		return 0, errors.New(
+			"count require at least three characters in field LIKE",
+		)
+	}
+
+	return ut.repo.Count(ctx, utca)
 }

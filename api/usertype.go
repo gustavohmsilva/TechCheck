@@ -84,6 +84,18 @@ func (ut *UserType) find(ech echo.Context) error {
 	if (re != rendering.ResponseError{}) {
 		return ech.JSON(http.StatusBadRequest, re)
 	}
+	if req.Includes.Offset < 1 {
+		var err error
+		req.Includes.Count, err = ut.userTypeService.Count(ctx, req)
+		if err != nil {
+			return ech.JSON(
+				http.StatusInternalServerError,
+				&rendering.ResponseError{
+					Err: err.Error(),
+				},
+			)
+		}
+	}
 
 	var err error
 	req.UserTypes, err = ut.userTypeService.Find(ctx, req)

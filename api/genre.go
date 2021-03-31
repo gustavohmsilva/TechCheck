@@ -87,10 +87,24 @@ func (g *Genre) find(ech echo.Context) error {
 		return ech.JSON(http.StatusBadRequest, re)
 	}
 
+	if req.Includes.Offset < 1 {
+		var err error
+		req.Includes.Count, err = g.genreService.Count(ctx, req)
+		if err != nil {
+			return ech.JSON(
+				http.StatusInternalServerError,
+				&rendering.ResponseError{
+					Err: err.Error(),
+				},
+			)
+		}
+	}
+
 	var err error
 	req.Genres, err = g.genreService.Find(ctx, req)
 	if err != nil {
 		return ech.NoContent(http.StatusInternalServerError)
 	}
+
 	return ech.JSON(http.StatusOK, req)
 }

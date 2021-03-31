@@ -97,3 +97,39 @@ func (ut *UserType) Find(
 	}
 	return retUserType, nil
 }
+
+func (ut *UserType) Count(
+	ctx context.Context, utca *model.UserTypesArgs,
+) (
+	uint64, error,
+) {
+	ct := squirrel.Select(
+		"count(Id)",
+	).From(
+		"UserType",
+	).Where(
+		squirrel.Like{
+			"Name": fmt.Sprint(
+				wc,
+				utca.Includes.Like,
+				wc,
+			),
+		},
+	)
+
+	qry, args, err := ct.ToSql()
+	if err != nil {
+		l.Errorf("QUERY ERROR: %s", err.Error())
+		return 0, err
+	}
+
+	l.Infof("QUERY: %s", qry)
+	res := ut.DB.QueryRowContext(ctx, qry, args...)
+	var count uint64
+	err = res.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}

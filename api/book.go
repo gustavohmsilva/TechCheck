@@ -5,6 +5,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// TODO: focus on this in the next livestream
+
 // Book basically serves as a way to transport tech and other relevante
 // references.
 type Book struct {
