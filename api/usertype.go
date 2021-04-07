@@ -42,7 +42,7 @@ func (ut *UserType) create(ech echo.Context) error {
 		return ech.JSON(
 			http.StatusBadRequest,
 			&rendering.ResponseError{
-				Err: err.Error(),
+				Errors: []string{err.Error()},
 			},
 		)
 	}
@@ -52,7 +52,7 @@ func (ut *UserType) create(ech echo.Context) error {
 		return ech.JSON(
 			http.StatusConflict,
 			&rendering.ResponseError{
-				Err: err.Error(),
+				Errors: []string{err.Error()},
 			},
 		)
 	}
@@ -69,21 +69,36 @@ func (ut *UserType) find(ech echo.Context) error {
 	req := new(model.UserTypesArgs)
 	req.Includes.Like = ech.QueryParam("like")
 
-	var re rendering.ResponseError
-	req.Includes.ID, re = parser.Uint64(ech.QueryParam("id"))
-	if (re != rendering.ResponseError{}) {
-		return ech.JSON(http.StatusBadRequest, re)
+	var err error
+	requestFailed := new(rendering.ResponseError)
+	req.Includes.ID, err = parser.Uint64(
+		ech.QueryParam("id"),
+		"id",
+	)
+	if err != nil {
+		requestFailed.Errors = append(requestFailed.Errors, err.Error())
 	}
 
-	req.Includes.Size, re = parser.Uint64(ech.QueryParam("size"))
-	if (re != rendering.ResponseError{}) {
-		return ech.JSON(http.StatusBadRequest, re)
+	req.Includes.Size, err = parser.Uint64(
+		ech.QueryParam("size"),
+		"size",
+	)
+	if err != nil {
+		requestFailed.Errors = append(requestFailed.Errors, err.Error())
 	}
 
-	req.Includes.Offset, re = parser.Uint64(ech.QueryParam("offset"))
-	if (re != rendering.ResponseError{}) {
-		return ech.JSON(http.StatusBadRequest, re)
+	req.Includes.Offset, err = parser.Uint64(
+		ech.QueryParam("offset"),
+		"offset",
+	)
+	if err != nil {
+		requestFailed.Errors = append(requestFailed.Errors, err.Error())
 	}
+
+	if len(requestFailed.Errors) > 0 {
+		return ech.JSON(http.StatusBadRequest, requestFailed)
+	}
+
 	if req.Includes.Offset < 1 {
 		var err error
 		req.Includes.Count, err = ut.userTypeService.Count(ctx, req)
@@ -91,13 +106,12 @@ func (ut *UserType) find(ech echo.Context) error {
 			return ech.JSON(
 				http.StatusInternalServerError,
 				&rendering.ResponseError{
-					Err: err.Error(),
+					Errors: []string{err.Error()},
 				},
 			)
 		}
 	}
 
-	var err error
 	req.UserTypes, err = ut.userTypeService.Find(ctx, req)
 	if err != nil {
 		return ech.NoContent(http.StatusInternalServerError)

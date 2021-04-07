@@ -48,7 +48,7 @@ func (g *Genre) create(ech echo.Context) error {
 		return ech.JSON(
 			http.StatusBadRequest,
 			&rendering.ResponseError{
-				Err: err.Error(),
+				Errors: []string{err.Error()},
 			},
 		)
 	}
@@ -58,7 +58,7 @@ func (g *Genre) create(ech echo.Context) error {
 		return ech.JSON(
 			http.StatusConflict,
 			&rendering.ResponseError{
-				Err: err.Error(),
+				Errors: []string{err.Error()},
 			},
 		)
 	}
@@ -76,15 +76,26 @@ func (g *Genre) find(ech echo.Context) error {
 
 	req.Includes.Like = ech.QueryParam("like")
 
-	var re rendering.ResponseError
-	req.Includes.Size, re = parser.Uint64(ech.QueryParam("size"))
-	if (re != rendering.ResponseError{}) {
-		return ech.JSON(http.StatusBadRequest, re)
+	var err error
+	requestFailed := new(rendering.ResponseError)
+	req.Includes.Size, err = parser.Uint64(
+		ech.QueryParam("size"),
+		"size",
+	)
+	if err != nil {
+		requestFailed.Errors = append(requestFailed.Errors, err.Error())
 	}
 
-	req.Includes.Offset, re = parser.Uint64(ech.QueryParam("offset"))
-	if (re != rendering.ResponseError{}) {
-		return ech.JSON(http.StatusBadRequest, re)
+	req.Includes.Offset, err = parser.Uint64(
+		ech.QueryParam("offset"),
+		"offset",
+	)
+	if err != nil {
+		requestFailed.Errors = append(requestFailed.Errors, err.Error())
+	}
+
+	if len(requestFailed.Errors) > 0 {
+		return ech.JSON(http.StatusBadRequest, requestFailed)
 	}
 
 	if req.Includes.Offset < 1 {
@@ -94,13 +105,12 @@ func (g *Genre) find(ech echo.Context) error {
 			return ech.JSON(
 				http.StatusInternalServerError,
 				&rendering.ResponseError{
-					Err: err.Error(),
+					Errors: []string{err.Error()},
 				},
 			)
 		}
 	}
 
-	var err error
 	req.Genres, err = g.genreService.Find(ctx, req)
 	if err != nil {
 		return ech.NoContent(http.StatusInternalServerError)
